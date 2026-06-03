@@ -237,7 +237,7 @@
   }
   .gallery .well .idx{position:absolute; right:16px; top:13px; font-family:'Karla',sans-serif; font-weight:700; font-size:10px; letter-spacing:0.2em; color:var(--ink-quiet);}
   .gallery .ncard{
-    position:relative; z-index:2; flex:none;
+    position:relative; z-index:2; flex:1 1 auto;
     margin:-46px clamp(10px,0.9vw,16px) 0; background:var(--paper-canvas); border:1px solid var(--line);
     box-shadow:0 24px 46px -26px rgba(10,10,16,0.32); padding:20px 24px 22px;
     display:flex; flex-direction:column;
@@ -246,7 +246,7 @@
   .gallery .ncard .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-mute);}
   .gallery .ncard .val{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(22px,2.2vw,32px); letter-spacing:-0.03em; color:var(--ink); line-height:1.0; margin:8px 0 11px;}
   .gallery .ncard .val em{font-style:normal; font-weight:800;}
-  .gallery .ncard .dsc{font-size:15.5px; line-height:1.55; color:var(--ink-soft);}
+  .gallery .ncard .dsc{font-size:13.5px; line-height:1.5; color:var(--ink-soft);}
 
   /* ---- Partner lockup (Cloudinary slide) ---- */
   .partner-lockup{
@@ -265,15 +265,16 @@
   .split .half h3 em{font-style:normal; font-weight:800;}
   .split .half p{font-size:17px; line-height:1.6; color:var(--ink-soft); max-width:46ch;}
 
-  /* ---- Delivery (vertical stack + media) ---- */
-  .delivery{display:grid; grid-template-columns:1.05fr 1fr; gap:clamp(40px,5.5vw,80px); margin-top:auto; margin-bottom:auto; align-items:stretch;}
-  .delivery .pieces{display:flex; flex-direction:column; gap:clamp(22px,3.4vh,36px); align-self:center;}
+  /* ---- Delivery (vertical stack + full-bleed media) ---- */
+  .slide.delivery-page .frame{padding-right:0; padding-bottom:0;}
+  .delivery{flex:1; display:grid; grid-template-columns:1.05fr 1fr; align-items:stretch; min-height:0; margin-top:clamp(28px,4vh,48px);}
+  .delivery .pieces{display:flex; flex-direction:column; gap:clamp(22px,3.4vh,36px); align-self:center; padding:0 clamp(40px,5vw,72px) clamp(96px,12vh,128px) 0;}
   .delivery .piece{display:flex; flex-direction:column;}
   .delivery .piece .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line);}
   .delivery .piece h3{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(22px,2.4vw,34px); letter-spacing:-0.025em; color:var(--ink); line-height:1.05; margin-bottom:8px;}
   .delivery .piece h3 em{font-style:normal; font-weight:800;}
   .delivery .piece p{font-size:clamp(15px,1.15vw,18px); line-height:1.55; color:var(--ink-soft); max-width:50ch;}
-  .delivery .media{position:relative; overflow:hidden; border:1px solid var(--line-soft); background:#0a0a0a; min-height:clamp(360px,52vh,560px);}
+  .delivery .media{position:relative; overflow:hidden; background:#0a0a0a; align-self:stretch;}
   .delivery .media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
 
   /* ---- Close ---- */
@@ -329,7 +330,7 @@
     display:flex; align-items:center; gap:14px; z-index:70;
     color:var(--ink-soft); transition:color .3s var(--ease);
   }
-  .nav-fixed.on-ink{color:#cfcfca;}
+  .nav-fixed.on-ink, .nav-fixed.on-ink .nav-btn, .nav-fixed.on-ink .counter{color:#cfcfca;}
   .nav-fixed .counter{
     background:none; border:none; cursor:pointer; color:inherit;
     font-family:'Karla',sans-serif; font-weight:700; font-size:11px;
@@ -435,6 +436,7 @@
           <div class="lrow"><span class="k"><em>UK</em></span><span class="dots"></span><span class="v">3–4 June</span></div>
           <div class="lrow"><span class="k"><em>Poland</em></span><span class="dots"></span><span class="v">10–12 June</span></div>
           <div class="lrow"><span class="k"><em>Spain</em></span><span class="dots"></span><span class="v">17–19 June</span></div>
+          <div class="lrow"><span class="k"><em>USA</em></span><span class="dots"></span><span class="v">Date TBC</span></div>
         </div>
         <p class="note">Teams into one room to reconnect and build culture face to face. Among it, a short 2–3 hour project-style workshop: a low-pressure way to see how we collaborate, reason and apply AI judgement together. Come curious, it is about learning and growing, not competing.</p>
       </div>
@@ -485,7 +487,7 @@
   </section>
 
   <!-- 07 DELIVERY (content) -->
-  <section class="slide">
+  <section class="slide delivery-page nav-light">
     <div class="frame">
       <div class="eyebrow">Delivery · This month</div>
       <div class="delivery">
@@ -590,7 +592,7 @@
   </section>
 
   <!-- 12 FINANCE (CFO note) -->
-  <section class="slide ink glow">
+  <section class="slide">
     <div class="frame">
       <div class="eyebrow">Finance</div>
       <div class="push"></div>
@@ -608,7 +610,7 @@
       </div>
       <div class="cover-main">
         <h1 class="cover-title">thank you<span class="lime-dot">.</span></h1>
-        <p class="cover-sub">From the leadership team.</p>
+        <p class="cover-sub">Onwards and upwards — together.</p>
       </div>
     </div>
     <div class="foot">
@@ -649,7 +651,7 @@
     progress.style.width=((i)/(total-1)*100)+'%';
     counter.textContent=pad(i+1)+' / '+pad(total);
     prevBtn.disabled=(i===0); nextBtn.disabled=(i===total-1);
-    navFixed.classList.toggle('on-ink',slides[i].classList.contains('ink'));
+    navFixed.classList.toggle('on-ink',slides[i].classList.contains('ink')||slides[i].classList.contains('nav-light'));
     if(!picker.hidden) markCurrent();
   }
   function go(n){i=Math.max(0,Math.min(total-1,n)); render();}
