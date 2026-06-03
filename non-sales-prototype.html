@@ -68,6 +68,31 @@
   .eng-list .el h4 em{font-style:normal; font-weight:800;}
   .eng-list .el p{font-size:13.5px; line-height:1.5; color:var(--ink-soft); max-width:44ch;}
 
+  /* ============ ENGINEERING · demo launchpad (hybrid, light) ============ */
+  .demo-grid{flex:1; display:grid; grid-template-columns:0.92fr 1.08fr; gap:clamp(40px,5vw,84px); align-items:center; min-height:0;}
+  .demo-left{display:flex; flex-direction:column;}
+  .demo-h{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(40px,5.4vw,86px); line-height:0.96; letter-spacing:-0.04em; color:var(--ink);}
+  .demo-h em{font-style:normal; font-weight:800;}
+  .demo-rows{margin-top:clamp(28px,4vh,52px); display:flex; flex-direction:column; border-top:1px solid var(--line);}
+  .demo-rows .d{display:flex; align-items:baseline; justify-content:space-between; gap:18px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .demo-rows .t{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(19px,1.9vw,27px); letter-spacing:-0.02em; color:var(--ink);}
+  .demo-rows .t em{font-style:normal; font-weight:800;}
+  .demo-rows .m{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-mute); white-space:nowrap;}
+  /* feature panel = demo media zone */
+  .demo-panel{position:relative; align-self:stretch; margin:clamp(8px,2vh,24px) 0; background:#15151f; overflow:hidden; display:flex; align-items:flex-end;}
+  .demo-panel .dp-bg{position:absolute; inset:0;
+    background-image:linear-gradient(180deg, rgba(5,5,14,0.08) 28%, rgba(5,5,14,0.4) 64%, rgba(5,5,14,0.84) 100%), url('assets/demo.jpg');
+    background-size:cover; background-position:center;}
+  .demo-panel .dp-play{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:66px; height:66px; border-radius:50%; background:var(--lime); color:var(--ink); border:none;
+    display:flex; align-items:center; justify-content:center; font-size:20px; padding-left:4px; cursor:pointer;
+    box-shadow:0 12px 34px rgba(0,0,0,0.45); transition:transform .2s var(--ease);}
+  .demo-panel .dp-play:hover{transform:translate(-50%,-50%) scale(1.06);}
+  .demo-panel .dp-cap{position:relative; z-index:1; padding:clamp(26px,3vw,42px); color:#f5f5ef;}
+  .demo-panel .dp-label{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#cfcfca; margin-bottom:9px;}
+  .demo-panel .dp-note{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(18px,1.8vw,25px); letter-spacing:-0.02em; line-height:1.12; color:#f7f7f1; max-width:30ch;}
+  .demo-panel .dp-note b{font-weight:800;}
+
   /* ============ DELIVERY · hatch + real-artefact badges ============ */
   .del-grid{flex:1; display:grid; grid-template-columns:1.15fr 0.85fr; gap:clamp(40px,5vw,84px); align-items:stretch; min-height:0; margin-top:clamp(20px,3vh,40px);}
   .del-certs{display:flex; flex-direction:column;}
@@ -113,24 +138,29 @@
   <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter" id="c">Triple Days</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
 </section>
 
-<!-- ENGINEERING -->
-<section class="slide">
+<!-- ENGINEERING · demo launchpad (hybrid) -->
+<section class="slide demo">
   <div class="frame">
-    <div class="eyebrow">Engineering · AI-first</div>
-    <div class="eng-grid">
-      <div class="hero-num">
-        <span class="hatch-band"></span>
-        <div class="hn"><em>90</em> days</div>
-        <div class="hn-sub">to first Hero-product delivery</div>
+    <div class="eyebrow">Engineering · Live demo</div>
+    <div class="demo-grid">
+      <div class="demo-left">
+        <h2 class="demo-h">See our<br><em>AI-first</em><br>practice run.</h2>
+        <div class="demo-rows">
+          <div class="d"><span class="t">AI-enhanced <em>migration</em></span><span class="m">Hero 01</span></div>
+          <div class="d"><span class="t"><em>Envisioning</em></span><span class="m">Hero 02</span></div>
+        </div>
       </div>
-      <div class="eng-list">
-        <div class="el"><div class="lab">The transition</div><h4>An <em>AI-first</em> practice</h4><p>90-day priorities agreed. Clear owners, clear actions.</p></div>
-        <div class="el"><div class="lab">Hero product · 01</div><h4>AI-enhanced <em>migration</em></h4><p>Our agentic migration offering, productised.</p></div>
-        <div class="el"><div class="lab">Hero product · 02</div><h4><em>Envisioning</em></h4><p>A new discovery-consulting offering.</p></div>
+      <div class="demo-panel">
+        <div class="dp-bg"></div>
+        <button class="dp-play" aria-label="Play demo">▶</button>
+        <div class="dp-cap">
+          <div class="dp-label">Over to Alec · live demo</div>
+          <div class="dp-note">A live look at the agentic migration, <b>in action</b>.</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">Engineering</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">Engineering · demo</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
 </section>
 
 <!-- DELIVERY -->
