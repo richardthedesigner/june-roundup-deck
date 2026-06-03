@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alec demo slide · options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@200;300;400;500;700;800;900&family=Karla:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper-canvas:#fafaf7; --paper-page:#f3f3ee; --paper-panel:#ebebe6; --paper-deep:#e2e2dc;
+    --ink:#0a0a0a; --ink-body:#1f1f1f; --ink-soft:#4a4a4a; --ink-mute:#7a7a7a; --ink-quiet:#a8a8a8;
+    --line:#d4d4cf; --line-soft:#e0e0db; --lime:#bcfb49; --ease:cubic-bezier(0.22,0.61,0.36,1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  ::selection{background:var(--lime); color:var(--ink);}
+  html,body{height:100%;}
+  body{background:#111; color:var(--ink-body); font-family:'Karla',sans-serif; font-weight:300; -webkit-font-smoothing:antialiased; overflow:hidden;}
+
+  .slide{position:fixed; inset:0; display:none; flex-direction:column; background:var(--paper-canvas);}
+  .slide.active{display:flex;}
+  .frame{flex:1; display:flex; flex-direction:column; padding:clamp(44px,4.6vw,80px) clamp(56px,7vw,116px) clamp(88px,10vh,116px); position:relative; min-height:0;}
+  .eyebrow{display:flex; align-items:center; gap:18px; flex:none; font-family:'Karla',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.22em; color:var(--ink-mute);}
+  .eyebrow::before{content:''; width:32px; height:2px; background:var(--lime); display:inline-block; flex:none;}
+  .foot{position:absolute; left:clamp(56px,7vw,116px); right:clamp(56px,7vw,116px); bottom:clamp(32px,4vh,52px); display:flex; justify-content:space-between; align-items:center;}
+  .foot .wm{font-family:'Epilogue',sans-serif; font-weight:800; font-size:14px; text-transform:lowercase; color:var(--ink); display:flex; align-items:center; gap:5px;}
+  .foot .wm .sq{width:6px; height:6px; background:var(--lime); display:inline-block;}
+  .nav{display:flex; align-items:center; gap:14px; color:var(--ink-soft);}
+  .nav-btn{background:none; border:1px solid currentColor; color:var(--ink-soft); width:32px; height:32px; font-family:'Epilogue',sans-serif; font-size:16px; opacity:0.5; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .counter{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink-mute); min-width:230px; text-align:center;}
+  .pill{position:fixed; top:18px; left:50%; transform:translateX(-50%); font-family:'Karla',sans-serif; font-weight:700; font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); z-index:40;}
+  .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet);}
+  .play{border-radius:50%; background:var(--lime); color:var(--ink); border:none; display:flex; align-items:center; justify-content:center; flex:none; padding-left:3px; cursor:pointer;}
+
+  /* shared ledger list */
+  .ledger{display:flex; flex-direction:column; border-top:1px solid var(--line);}
+  .ledger .row{display:grid; grid-template-columns:54px 1fr; gap:clamp(18px,2.4vw,40px); padding:clamp(15px,2vh,24px) 0; border-bottom:1px solid var(--line); align-items:baseline;}
+  .ledger .row .n{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; color:var(--ink-quiet); padding-top:6px;}
+  .ledger .row h3{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(20px,2.1vw,30px); letter-spacing:-0.025em; color:var(--ink); line-height:1.04; margin-bottom:5px;}
+  .ledger .row h3 em{font-style:normal; font-weight:800;}
+  .ledger .row p{font-size:13.5px; line-height:1.5; color:var(--ink-soft); max-width:60ch;}
+
+  /* ===== OPTION A · ledger + demo bar ===== */
+  .a-head{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(38px,4.8vw,72px); letter-spacing:-0.04em; line-height:0.98; color:var(--ink); margin:clamp(20px,3vh,40px) 0 clamp(22px,3vh,38px);}
+  .a-head em{font-style:normal; font-weight:800;}
+  .a-bar{margin-top:clamp(20px,3vh,36px); border-top:1.5px solid var(--ink); padding-top:18px; display:flex; align-items:center; gap:20px;}
+  .a-bar .play{width:50px; height:50px; font-size:16px;}
+  .a-bar .bt .dl{font-family:'Karla',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:4px;}
+  .a-bar .bt .dt{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(18px,1.9vw,26px); letter-spacing:-0.02em; color:var(--ink);}
+  .a-bar .bt .dt b{font-weight:800;}
+
+  /* ===== OPTION B · content left + demo monitor right ===== */
+  .b-grid{flex:1; display:grid; grid-template-columns:1.05fr 0.95fr; gap:clamp(40px,5vw,82px); align-items:center; min-height:0; margin-top:clamp(16px,2vh,28px);}
+  .b-grid .b-head{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(30px,3.2vw,50px); letter-spacing:-0.035em; line-height:1.0; color:var(--ink); margin-bottom:clamp(20px,2.6vh,32px);}
+  .b-grid .b-head em{font-style:normal; font-weight:800;}
+  .monitor{position:relative; aspect-ratio:4/3; background:#15151f; overflow:hidden; display:flex; align-items:flex-end; box-shadow:0 30px 60px -34px rgba(10,10,16,0.45);}
+  .monitor .mbg{position:absolute; inset:0; background-image:linear-gradient(180deg, rgba(5,5,14,0.1) 30%, rgba(5,5,14,0.42) 64%, rgba(5,5,14,0.85) 100%), url('assets/demo.jpg'); background-size:cover; background-position:center;}
+  .monitor .play{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:64px; height:64px; font-size:19px; box-shadow:0 12px 32px rgba(0,0,0,0.45);}
+  .monitor .cap{position:relative; z-index:1; padding:clamp(22px,2.4vw,34px); color:#f5f5ef;}
+  .monitor .cap .dl{font-family:'Karla',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#cfcfca; margin-bottom:7px;}
+  .monitor .cap .dt{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(18px,1.7vw,23px); letter-spacing:-0.02em; color:#f7f7f1; line-height:1.1;}
+  .monitor .cap .dt b{font-weight:800;}
+
+  /* ===== OPTION C · type hero + columns + kicker ===== */
+  .c-top{display:grid; grid-template-columns:auto 1fr; gap:clamp(36px,5vw,90px); align-items:center; margin-top:auto;}
+  .c-num{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(110px,16vw,230px); line-height:0.8; letter-spacing:-0.05em; color:var(--ink);}
+  .c-num em{font-style:normal; font-weight:800;}
+  .c-num .u{display:block; font-family:'Karla',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-mute); margin-top:14px;}
+  .c-cols{display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,3vw,52px);}
+  .c-cols .c{border-top:1.5px solid var(--ink); padding-top:18px;}
+  .c-cols .c h4{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(20px,2vw,28px); letter-spacing:-0.025em; color:var(--ink); margin:8px 0 6px;}
+  .c-cols .c h4 em{font-style:normal; font-weight:800;}
+  .c-cols .c p{font-size:13px; line-height:1.5; color:var(--ink-soft);}
+  .c-kicker{margin-top:auto; display:flex; align-items:center; gap:16px; border-top:1px solid var(--line); padding-top:20px;}
+  .c-kicker .play{width:46px; height:46px; font-size:15px;}
+  .c-kicker .kt{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(18px,1.9vw,26px); letter-spacing:-0.02em; color:var(--ink);}
+  .c-kicker .kt b{font-weight:800;}
+</style>
+</head>
+<body>
+<div class="pill">Alec's slide · 3 options</div>
+
+<!-- OPTION A -->
+<section class="slide active">
+  <div class="frame">
+    <div class="eyebrow">Engineering · AI-first</div>
+    <div class="a-head">An <em>AI-first</em> practice.</div>
+    <div class="ledger">
+      <div class="row"><div class="n">01</div><div><h3>The <em>transition</em></h3><p>90-day priorities agreed at QBR, with clear owners and clear actions.</p></div></div>
+      <div class="row"><div class="n">02</div><div><h3>AI-enhanced <em>migration</em></h3><p>Our agentic migration offering. Targeted for delivery within 90 days.</p></div></div>
+      <div class="row"><div class="n">03</div><div><h3><em>Envisioning</em></h3><p>A new discovery-consulting offering. Targeted for delivery within 90 days.</p></div></div>
+    </div>
+    <div class="a-bar">
+      <button class="play" aria-label="Play demo">▶</button>
+      <div class="bt"><div class="dl">Live demo · over to Alec</div><div class="dt">See the AI-first migration <b>in action</b>.</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">A · ledger + demo bar</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<!-- OPTION B -->
+<section class="slide">
+  <div class="frame">
+    <div class="eyebrow">Engineering · AI-first</div>
+    <div class="b-grid">
+      <div class="b-left">
+        <div class="b-head">An <em>AI-first</em><br>practice.</div>
+        <div class="ledger">
+          <div class="row"><div class="n">01</div><div><h3>The <em>transition</em></h3><p>90-day priorities agreed, clear owners and clear actions.</p></div></div>
+          <div class="row"><div class="n">02</div><div><h3>AI-enhanced <em>migration</em></h3><p>Agentic migration offering · 90 days.</p></div></div>
+          <div class="row"><div class="n">03</div><div><h3><em>Envisioning</em></h3><p>Discovery-consulting offering · 90 days.</p></div></div>
+        </div>
+      </div>
+      <div class="monitor">
+        <div class="mbg"></div>
+        <button class="play" aria-label="Play demo">▶</button>
+        <div class="cap"><div class="dl">Over to Alec · live demo</div><div class="dt">The AI-first migration, <b>in action</b>.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">B · content + demo monitor</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<!-- OPTION C -->
+<section class="slide">
+  <div class="frame">
+    <div class="eyebrow">Engineering · AI-first</div>
+    <div class="c-top">
+      <div class="c-num"><em>90</em><span class="u">days to first delivery</span></div>
+      <div class="c-cols">
+        <div class="c"><div class="lab">Hero 01</div><h4>AI-enhanced <em>migration</em></h4><p>Our agentic migration offering, productised.</p></div>
+        <div class="c"><div class="lab">Hero 02</div><h4><em>Envisioning</em></h4><p>A new discovery-consulting offering.</p></div>
+      </div>
+    </div>
+    <div class="c-kicker">
+      <button class="play" aria-label="Play demo">▶</button>
+      <div class="kt">Priorities set, owners named. <b>Over to Alec</b> for the live demo.</div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">C · type hero + kicker</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')]; let i=0;
+  function render(){slides.forEach((s,k)=>s.classList.toggle('active',k===i));}
+  function go(d){i=(i+d+slides.length)%slides.length; render();}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1);});
+  document.body.addEventListener('click',e=>{if(e.target.closest('.nav-btn'))return; go(e.clientX>innerWidth/2?1:-1);});
+</script>
+</body>
+</html>
