@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>June Roundup · TBSCG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@200;300;400;500;700;800;900&family=Karla:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper-canvas:#fafaf7; --paper-page:#f3f3ee; --paper-panel:#ebebe6; --paper-deep:#e2e2dc;
+    --ink:#0a0a0a; --ink-body:#1f1f1f; --ink-soft:#4a4a4a; --ink-mute:#7a7a7a; --ink-quiet:#a8a8a8;
+    --line:#d4d4cf; --line-soft:#e0e0db; --lime:#bcfb49;
+    --ease:cubic-bezier(0.22,0.61,0.36,1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  ::selection{background:var(--lime); color:var(--ink);}
+  html,body{height:100%;}
+  body{
+    background:#111; color:var(--ink-body);
+    font-family:'Karla',sans-serif; font-weight:300;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    overflow:hidden;
+  }
+  .deck{position:fixed; inset:0;}
+
+  .slide{
+    position:absolute; inset:0;
+    display:none; flex-direction:column;
+    background:var(--paper-canvas); color:var(--ink-body);
+  }
+  .slide.active{display:flex;}
+  .frame{
+    flex:1; display:flex; flex-direction:column;
+    padding:clamp(48px,5.5vw,92px) clamp(56px,7vw,116px) clamp(96px,12vh,128px);
+    position:relative;
+  }
+
+  /* ---- Eyebrow (lime rule + caps) ---- */
+  .eyebrow{
+    display:flex; align-items:center; gap:18px;
+    font-family:'Karla',sans-serif; font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:0.22em; color:var(--ink-mute);
+  }
+  .eyebrow::before{content:''; width:32px; height:2px; background:var(--lime); display:inline-block; flex:none;}
+
+  /* ---- Headlines ---- */
+  .headline{
+    font-family:'Epilogue',sans-serif; font-weight:200;
+    line-height:0.98; letter-spacing:-0.035em; color:var(--ink);
+    font-size:clamp(44px,6.4vw,104px); max-width:17ch;
+  }
+  .headline em{font-style:normal; font-weight:800;}
+  .subline{
+    font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+    font-size:clamp(24px,3vw,46px); color:var(--ink-quiet); line-height:1.12;
+    letter-spacing:-0.005em;
+  }
+  .subline .lime-mark{color:#7a8f3a;}
+
+  /* ---- Foot + nav ---- */
+  .foot{
+    position:absolute; left:clamp(56px,7vw,116px); right:clamp(56px,7vw,116px);
+    bottom:clamp(36px,4.5vh,56px);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .foot .wordmark{
+    font-family:'Epilogue',sans-serif; font-weight:800; font-size:14px;
+    letter-spacing:-0.015em; text-transform:lowercase; color:var(--ink);
+    display:flex; align-items:center; gap:5px;
+  }
+  .foot .wordmark .sq{width:6px; height:6px; background:var(--lime); display:inline-block;}
+  .nav-cluster{display:flex; align-items:center; gap:14px;}
+  .nav-btn{
+    background:none; border:1px solid currentColor; color:var(--ink-soft);
+    width:32px; height:32px; font-family:'Epilogue',sans-serif; font-size:16px;
+    cursor:pointer; opacity:0.55; transition:opacity .2s; display:flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:hover:not(:disabled){opacity:1;}
+  .nav-btn:disabled{opacity:0.16; cursor:default;}
+  .nav-btn span{position:relative; top:-1px;}
+  .counter{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:0.22em; text-transform:uppercase; color:var(--ink-mute);
+    min-width:64px; text-align:center;
+  }
+
+  /* ---- Dimensional ink slides ---- */
+  .slide.ink{color:#f0f0eb;
+    background:linear-gradient(135deg,#050510 0%,#131320 55%,#1c1c2a 100%);
+  }
+  .slide.ink.glow{
+    background:
+      radial-gradient(ellipse 80% 60% at 86% 16%, rgba(188,251,73,0.12) 0%, rgba(188,251,73,0.02) 38%, transparent 66%),
+      linear-gradient(135deg,#050510 0%,#131320 55%,#1c1c2a 100%);
+  }
+  .slide.ink .eyebrow{color:var(--lime);}
+  .slide.ink .headline{color:#f5f5ef;}
+  .slide.ink .subline{color:var(--ink-quiet);}
+  .slide.ink .subline .lime-mark{color:var(--lime);}
+  .slide.ink .foot .wordmark{color:#f5f5ef;}
+  .slide.ink .nav-btn{color:#cfcfca;}
+  .slide.ink .counter{color:var(--ink-mute);}
+
+  /* ---- Cover ---- */
+  .cover-mast{display:flex; flex-direction:column; gap:14px;}
+  .cover-mast svg{width:clamp(132px,12vw,184px); height:auto; display:block; color:var(--ink-body);}
+  .cover-mast .mast-line{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.22em; color:var(--ink-mute);
+  }
+  .cover-main{margin-top:auto;}
+  .cover-title{
+    font-family:'Epilogue',sans-serif; font-weight:200; text-transform:lowercase;
+    font-size:clamp(64px,11vw,158px); line-height:0.9; letter-spacing:-0.045em; color:var(--ink);
+  }
+  .cover-title .lime-dot{color:var(--lime);}
+  .cover-title em{font-style:normal; font-weight:800;}
+  .cover-sub{
+    margin-top:clamp(22px,2.6vh,34px);
+    font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(22px,2.8vw,40px);
+    color:var(--ink-quiet); letter-spacing:-0.005em;
+  }
+
+  /* ---- Spacers / structure ---- */
+  .push{margin-top:auto;}
+  .mt-eyebrow{margin-top:clamp(28px,3.4vh,52px);}
+
+  /* ---- Editorial numbered list ---- */
+  .list{display:flex; flex-direction:column; margin-top:clamp(30px,5vh,64px); border-top:1px solid var(--line);}
+  .list .item{
+    display:grid; grid-template-columns:64px 1fr; gap:clamp(20px,3vw,48px);
+    padding:clamp(20px,3vh,34px) 0; border-bottom:1px solid var(--line); align-items:baseline;
+  }
+  .list .item .idx{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em;
+    color:var(--ink-quiet); padding-top:8px;
+  }
+  .list .item h3{
+    font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(24px,2.9vw,40px);
+    letter-spacing:-0.025em; color:var(--ink); line-height:1.02; margin-bottom:10px;
+  }
+  .list .item h3 em{font-style:normal; font-weight:800;}
+  .list .item p{
+    font-size:clamp(14px,1.05vw,16px); line-height:1.5; color:var(--ink-soft); max-width:62ch; font-weight:300;
+  }
+
+  /* ---- Dominant figure ---- */
+  .figure-row{display:grid; grid-template-columns:auto 1fr; gap:clamp(40px,6vw,90px); align-items:center; margin-top:auto; margin-bottom:auto;}
+  .bignum{
+    font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(150px,24vw,340px);
+    line-height:0.8; letter-spacing:-0.05em; color:var(--ink); white-space:nowrap;
+  }
+  .bignum em{font-style:normal; font-weight:800;}
+  .bignum sup{font-size:0.32em; font-weight:300; vertical-align:super; letter-spacing:0; margin-left:2px;}
+  .figure-row .said{max-width:30ch;}
+  .figure-row .said .big{
+    font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(22px,2.4vw,34px);
+    line-height:1.18; letter-spacing:-0.02em; color:var(--ink);
+  }
+  .figure-row .said .big em{font-style:normal; font-weight:700;}
+  .figure-row .said .det{margin-top:18px; font-size:15px; line-height:1.5; color:var(--ink-mute);}
+
+  /* ---- Leader rows (dotted) ---- */
+  .leaders{display:flex; flex-direction:column; gap:clamp(8px,1.4vh,16px); margin-top:auto; margin-bottom:auto; max-width:880px;}
+  .lrow{display:flex; align-items:baseline; font-family:'Karla',sans-serif;}
+  .lrow .k{
+    font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(30px,4.2vw,68px);
+    letter-spacing:-0.03em; color:var(--ink); white-space:nowrap; line-height:1;
+  }
+  .lrow .k em{font-style:normal; font-weight:800;}
+  .lrow .dots{flex:1; border-bottom:1px dotted #b8b8b3; margin:0 18px; position:relative; top:-10px; min-width:30px;}
+  .lrow .v{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:clamp(13px,1.2vw,17px);
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap;
+  }
+
+  /* ---- Three-column band (label / value / desc), hairline-topped ---- */
+  .band{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(28px,4vw,68px); margin-top:auto; margin-bottom:auto;}
+  .band .col{display:flex; flex-direction:column; gap:12px; border-top:1.5px solid var(--ink); padding-top:22px;}
+  .band .col .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet);}
+  .band .col .val{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(26px,2.6vw,40px); letter-spacing:-0.03em; color:var(--ink); line-height:1.0;}
+  .band .col .val em{font-style:normal; font-weight:800;}
+  .band .col .dsc{font-size:14px; line-height:1.5; color:var(--ink-soft); margin-top:4px;}
+
+  /* ---- Two-column split with center hairline ---- */
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:clamp(40px,6vw,92px); margin-top:auto; margin-bottom:auto;}
+  .split .half{display:flex; flex-direction:column;}
+  .split .half .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line);}
+  .split .half h3{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(26px,3vw,44px); letter-spacing:-0.03em; color:var(--ink); line-height:1.02; margin-bottom:14px;}
+  .split .half h3 em{font-style:normal; font-weight:800;}
+  .split .half p{font-size:15px; line-height:1.55; color:var(--ink-soft); max-width:46ch;}
+
+  /* ---- Close ---- */
+  .close-main{margin-top:auto; margin-bottom:auto; max-width:20ch;}
+  .close-note{margin-top:clamp(26px,3vh,40px); font-size:16px; line-height:1.6; color:#cfcfca; max-width:54ch;}
+
+  .progress{position:fixed; top:0; left:0; height:2px; background:var(--lime); z-index:60; transition:width .35s var(--ease);}
+
+  /* ---- Persistent nav cluster ---- */
+  .nav-fixed{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:clamp(36px,4.5vh,56px);
+    display:flex; align-items:center; gap:14px; z-index:70;
+    color:var(--ink-soft); transition:color .3s var(--ease);
+  }
+  .nav-fixed.on-ink{color:#cfcfca;}
+  .nav-fixed .counter{
+    background:none; border:none; cursor:pointer; color:inherit;
+    font-family:'Karla',sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:0.22em; text-transform:uppercase;
+    min-width:64px; text-align:center; padding:6px 4px; transition:opacity .2s;
+  }
+  .nav-fixed .counter:hover{opacity:0.6;}
+
+  /* ---- Slide picker popup ---- */
+  .picker{position:fixed; inset:0; z-index:80; display:flex; align-items:flex-end; justify-content:center;}
+  .picker[hidden]{display:none;}
+  .picker-panel{
+    background:var(--paper-canvas); border:1px solid var(--line);
+    margin-bottom:clamp(82px,11vh,108px); width:min(560px,86vw);
+    max-height:62vh; overflow-y:auto; padding:26px 30px 22px;
+    box-shadow:0 24px 60px rgba(10,10,16,0.22);
+    animation:pickerIn .22s var(--ease);
+  }
+  @keyframes pickerIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  .picker-eyebrow{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.22em; color:var(--ink-mute);
+    padding-bottom:14px; margin-bottom:6px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px;
+  }
+  .picker-eyebrow::before{content:''; width:28px; height:2px; background:var(--lime); display:inline-block;}
+  .picker-list{display:flex; flex-direction:column;}
+  .picker-item{
+    display:grid; grid-template-columns:42px 1fr; gap:18px; align-items:baseline;
+    padding:14px 6px; border-bottom:1px solid var(--line-soft);
+    background:none; border-left:none; border-right:none; border-top:none;
+    width:100%; text-align:left; cursor:pointer; font-family:'Karla',sans-serif;
+    transition:padding-left .18s var(--ease);
+  }
+  .picker-item:last-child{border-bottom:none;}
+  .picker-item:hover{padding-left:14px;}
+  .picker-item .pi-idx{font-weight:700; font-size:11px; letter-spacing:0.2em; color:var(--ink-quiet);}
+  .picker-item .pi-title{
+    font-family:'Epilogue',sans-serif; font-weight:300; font-size:18px;
+    letter-spacing:-0.02em; color:var(--ink); line-height:1.1;
+  }
+  .picker-item.current .pi-idx{color:var(--ink);}
+  .picker-item.current .pi-title::after{content:''; display:inline-block; width:7px; height:7px; background:var(--lime); margin-left:10px;}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide active">
+    <div class="frame">
+      <div class="cover-mast">
+        <svg class="tbscg-mark" width="1000" height="603" viewBox="0 0 1000 603" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_2198_32" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="603">
+<path d="M1000 0H0V602.74H1000V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask0_2198_32)">
+<path d="M987.956 204.747C981.178 201.444 973.616 199.738 965.662 199.738C953.059 199.738 942.303 202.93 933.677 209.26C927.011 214.159 921.522 219.552 917.433 225.222C911.774 220.488 904.044 215.534 894.074 210.03C881.526 203.205 866.514 199.738 849.316 199.738C838.281 199.738 826.63 201.664 814.755 205.352C802.823 209.095 791.677 214.71 781.818 221.974C771.847 229.295 763.556 238.321 757.057 248.834C751.848 257.2 748.488 268.648 747.759 274.207C747.031 279.766 744.847 283.563 743.11 287.801C740.31 294.186 735.996 300.681 730.282 307.011C724.625 313.285 716.726 318.623 706.867 323.027C697.008 327.485 684.125 329.686 668.608 329.686C654.437 329.686 642.841 326.879 634.159 321.375C625.42 315.816 618.474 308.166 613.545 298.589C608.447 288.737 604.862 277.068 602.958 263.859C600.941 250.43 599.933 235.844 599.933 220.599C599.933 193.629 602.23 172.108 606.655 156.697C611.025 141.507 616.682 129.948 623.404 122.518C630.014 115.252 637.24 110.684 644.97 108.868C653.26 106.941 661.382 106.006 669.112 106.006C679.363 106.006 688.495 108.097 696.337 112.28C703.451 116.078 706.867 121.197 706.867 127.911C706.867 132.149 705.636 137.708 703.226 144.423C700.482 152.019 699.137 158.678 699.137 164.182C699.137 172.274 702.947 178.273 710.004 181.685C716.222 184.658 722.888 186.199 729.778 186.199C740.085 186.199 748.152 183.337 753.921 177.667C759.634 172.053 762.604 164.788 762.604 156.092C762.604 144.038 759.467 133.746 753.305 125.269C747.311 117.014 739.637 110.299 730.563 105.125C721.6 100.061 711.573 96.2636 700.762 93.8418C670.962 87.1821 642.841 89.824 617.801 100.006C601.781 106.501 587.61 115.638 575.678 127.141C563.803 138.699 554.223 152.404 547.278 167.925C543.412 176.567 540.667 185.703 538.875 195.225C538.594 196.711 537.811 197.756 537.251 198.197C536.69 198.637 534.17 200.014 531.033 198.418C530.473 198.142 529.8 197.756 528.904 197.371C525.823 196.051 522.463 194.785 518.653 193.408C514.956 192.142 510.419 190.822 505.322 189.556C500 188.234 493.053 187.519 484.708 187.519C472.888 187.519 461.741 189.445 451.547 193.244C441.294 197.041 432.445 202.436 425.051 209.26C417.656 216.085 411.83 224.175 407.574 233.258C403.26 242.395 401.132 252.466 401.132 263.144C401.132 275.584 402.979 285.985 406.733 294.077C410.43 302.167 415.304 308.827 421.241 314.111C427.123 319.229 433.508 323.303 440.286 326.219C446.785 328.971 452.89 331.284 458.492 333.1L501.512 347.74C510.588 350.822 518.597 355.06 525.375 360.344C531.481 365.133 534.562 373.774 534.562 386.158C534.562 400.633 530.473 411.145 522.407 417.31C513.892 423.86 504.425 426.997 493.558 426.997C480.338 426.997 468.855 424.741 459.556 420.392C450.201 415.934 442.136 410.21 435.693 403.164C429.252 396.119 423.93 388.304 420.177 379.884C416.256 371.242 412.951 362.6 410.43 354.125L409.59 351.152H409.366C408.638 349.226 407.91 347.41 407.125 345.593C400.684 330.403 391.889 316.973 380.91 305.634C369.93 294.296 357.159 285.104 342.763 278.225C328.311 271.345 312.626 267.822 296.27 267.822C275.151 267.822 257.842 273.051 244.622 283.289C236.052 289.948 229.105 297.708 223.785 306.46V82.834H125.644V98.5752H168.104C168.104 98.5752 168.441 456.058 168.104 463.268C167.768 470.478 161.326 480.275 155.164 487.486C147.995 495.797 138.864 499.87 127.157 499.87C123.852 499.87 120.491 499.374 117.018 498.384C113.881 497.558 110.912 495.632 108.167 492.77C105.31 489.797 102.958 485.395 101.165 479.781C99.3166 473.89 98.3083 465.966 98.3083 456.333V249.274H142.058V233.533H98.3083V172.989H42.4603V233.533H0V249.274H42.4603V451.434C42.4603 471.634 48.3419 487.541 59.9933 498.768C71.7567 510.107 91.5864 515.666 120.491 515.666C132.086 515.666 141.945 513.74 149.844 510.107C157.125 506.749 163.231 502.347 168.048 497.227V515.666H222.664V482.258C225.801 488.641 230.338 494.916 236.221 500.805C242.214 506.915 249.831 512.199 258.907 516.547C268.093 521.005 279.408 523.152 292.404 523.152C309.097 523.152 325.174 519.574 340.242 512.474C355.142 505.429 368.474 495.797 379.789 483.963C391.104 472.13 400.179 458.26 406.789 442.959C408.301 439.436 410.374 433.162 410.822 432.171C411.27 431.179 412.055 429.859 413.231 428.978C414.407 428.097 415.64 427.767 419.505 427.767C423.09 427.767 427.067 428.538 431.381 429.97C436.197 431.566 441.463 433.326 447.177 435.199C453.003 437.014 459.444 438.775 466.222 440.427C473.337 442.133 481.178 442.959 489.581 442.959C504.033 442.959 517.085 440.647 528.4 436.134C539.659 431.621 549.351 425.566 557.248 418.245C565.203 410.815 571.308 402.064 575.341 392.158C579.375 382.305 581.448 372.178 581.448 361.885C581.448 344.163 575.453 329.686 563.634 318.844C552.263 308.386 537.419 300.075 519.662 294.132L479.33 281.142C463.645 276.244 451.77 270.849 443.871 265.236C436.645 260.007 433.116 252.522 433.116 242.229C433.116 230.396 437.43 221.259 446.225 214.214C455.188 207.114 468.127 203.426 484.652 203.426C493.166 203.426 500.616 204.912 506.834 207.94C512.996 210.911 518.318 215.04 522.463 220.323C526.831 225.827 530.641 232.211 533.778 239.256C536.859 246.247 539.659 253.512 542.181 261.052C543.973 267.216 546.27 273.105 548.957 278.445C557.137 294.462 567.779 307.562 580.719 317.468C593.547 327.321 607.942 334.585 623.46 338.989C638.864 343.447 653.877 345.648 668.216 345.648C687.094 345.648 702.89 342.677 714.99 336.842C726.922 331.063 736.668 324.184 743.838 316.422C746.415 313.615 748.656 310.863 750.729 308.056C754.93 321.651 763.164 333.43 775.488 343.171C772.238 344.712 768.822 346.529 765.181 348.456C758.794 351.923 752.745 356.381 747.144 361.885C741.485 367.444 736.668 373.995 732.915 381.314C728.995 388.91 726.978 397.992 726.978 408.393C726.978 428.538 733.419 443.069 746.19 451.6C755.714 457.985 769.157 461.892 786.522 463.323C783.386 464.864 780.249 466.515 777.168 468.222C769.157 472.736 761.931 478.129 755.601 484.348C749.216 490.623 743.951 497.944 739.918 506.034C735.771 514.345 733.7 523.537 733.7 533.553C733.7 544.011 736.444 553.699 741.766 562.23C747.088 570.651 754.425 577.916 763.725 583.806C772.911 589.585 783.722 594.208 795.989 597.621C808.258 600.922 821.925 602.629 836.489 602.629C852.678 602.629 868.699 599.877 884.159 594.538C899.619 589.199 913.511 581.438 925.386 571.586C937.318 561.734 947.008 549.901 954.234 536.471C961.516 522.877 965.214 507.685 965.214 491.229C965.214 464.095 956.979 443.729 940.79 430.849C924.826 418.19 903.26 411.805 876.708 411.805H789.604C785.01 411.805 780.641 411.475 776.496 410.76C772.574 410.1 768.989 408.999 765.908 407.403C763.108 405.916 760.811 403.826 758.963 400.799C757.17 397.826 756.218 393.973 756.218 389.349C756.218 384.286 757.338 379.773 759.579 375.921C761.875 371.848 764.788 368.325 768.318 365.352C771.903 362.326 775.823 359.793 780.137 357.812C784.057 355.996 787.699 354.289 791.227 352.693C796.381 355.06 803.327 357.922 811.897 360.949C821.868 364.527 833.688 366.344 846.964 366.344C860.24 366.344 872.619 364.362 884.886 360.455C897.155 356.547 908.245 350.933 917.6 343.777C926.955 336.677 934.629 328.256 940.342 318.789C946.225 309.158 949.193 298.479 949.193 286.921C949.193 273.271 946.393 261.658 940.903 252.356C936.59 245.201 933.004 239.752 929.923 235.899C932.164 233.203 934.629 230.781 937.43 228.579C940.511 226.103 943.423 224.837 946.112 224.837C948.353 224.837 949.753 225.552 950.818 227.203C952.611 230.01 954.346 232.982 955.803 236.064C957.596 239.532 959.668 242.834 961.964 245.916C964.99 249.879 969.863 251.916 976.305 251.916C981.627 251.916 986.836 249.989 991.822 246.137C997.031 242.064 999.775 236.064 999.775 228.249C999.775 216.525 995.855 208.6 988.125 204.801L987.789 204.526L987.956 204.747ZM807.585 332.825C803.496 326.99 800.694 319.945 799.126 311.91C797.557 303.542 796.718 293.966 796.718 283.399C796.718 258.851 801.255 241.127 810.105 230.781C818.9 220.433 831.784 215.425 849.429 215.425C860.744 215.425 869.763 217.405 876.204 221.314C882.646 225.167 887.519 230.396 890.656 236.725C893.962 243.33 896.09 250.815 897.155 258.741C898.219 267.052 898.779 275.363 898.779 283.453C898.779 306.295 894.914 323.578 887.408 334.53C880.126 345.153 867.857 350.382 850.045 350.382C839.29 350.382 830.44 348.841 823.605 345.868C816.883 342.896 811.73 338.714 807.697 332.934L807.529 332.768L807.585 332.825ZM224.512 368.71C225.073 358.638 226.081 349.556 227.537 341.851C228.995 334.2 230.842 327.596 233.14 322.092C235.379 316.697 238.46 311.523 242.214 306.736C247.367 300.075 254.089 294.407 262.379 290.003C270.558 285.655 281.201 283.453 294.029 283.453C306.073 283.453 315.931 285.766 323.549 290.444C331.055 295.067 337.105 301.782 341.307 310.423C345.675 319.34 348.812 330.348 350.605 343.062C352.397 355.996 353.349 370.856 353.349 387.148C353.349 405.807 352.789 422.868 351.725 438.06C350.662 452.921 348.029 465.69 343.771 476.093C339.682 486.055 333.521 493.815 325.453 499.155C317.388 504.438 306.129 507.079 291.956 507.079C277.784 507.079 265.741 504.052 257.17 498.053C248.431 491.999 241.541 483.963 236.668 474.441C231.738 464.589 228.378 453.416 226.585 441.252C224.793 428.923 223.841 416.704 223.841 405.036C223.841 391.111 224.121 378.892 224.625 368.655H224.568L224.512 368.71ZM799.799 569.715C793.133 564.871 787.642 558.377 783.33 550.505C779.129 542.636 776.944 532.453 776.944 520.179C776.944 511.318 778.064 503.833 780.249 497.999C782.489 492.11 785.403 486.936 788.988 482.588C792.573 478.238 796.662 474.662 801.255 471.8C805.848 468.937 810.329 466.185 814.867 463.489H873.236C891.721 463.489 906.285 467.507 916.76 475.377C926.842 482.973 931.94 496.403 931.94 515.171C931.94 523.867 929.923 532.399 926.003 540.489C922.082 548.579 916.256 555.9 908.805 562.174C901.3 568.504 892.281 573.623 881.974 577.421C871.667 581.218 860.015 583.145 847.3 583.145C839.234 583.145 830.831 582.099 822.373 580.063C814.138 578.026 806.577 574.504 799.799 569.66V569.715Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M423.195 0H450.194L397.147 52.1226V25.5934C397.147 11.5033 408.854 0 423.195 0ZM385.943 0V47.2241C385.943 57.7916 382.135 66.8733 374.517 74.3586L358.272 90.3201V25.5934C358.272 10.1273 370.707 0 385.943 0ZM347.124 2.69695V85.3666C347.124 95.9342 343.316 105.016 335.698 112.501L319.453 128.463V37.4821C319.453 20.6949 330.599 6.82492 347.124 2.69695ZM280.073 167.156V87.4581C280.073 62.4151 290.94 39.7386 308.25 23.7771V123.564C308.25 134.132 304.44 143.214 296.823 150.699L280.073 167.156ZM433.894 147.232C417.649 164.238 394.57 174.916 369.083 174.916H287.972L304.72 158.459C312.339 150.974 321.581 147.232 332.336 147.232H433.894ZM455.347 109.034C451.146 125.27 437.031 136.223 419.946 136.223H327.351L343.595 120.262C351.214 112.776 360.457 109.034 371.212 109.034H455.347ZM458.092 70.8911C458.092 85.8619 447.786 98.0807 432.044 98.0807H366.17L382.414 82.1192C390.034 74.6338 399.276 70.8911 410.031 70.8911H458.092ZM458.092 7.7606V34.2897C458.092 48.3799 446.386 59.8832 432.044 59.8832H405.046L458.092 7.7606Z" fill="url(#paint0_linear_2198_32)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2198_32" x1="267.694" y1="146.021" x2="469.617" y2="27.3615" gradientUnits="userSpaceOnUse">
+<stop stop-color="#99C649"/>
+<stop offset="0.16" stop-color="#A2D449"/>
+<stop offset="0.45" stop-color="#B0E949"/>
+<stop offset="0.73" stop-color="#B9F649"/>
+<stop offset="1" stop-color="#BCFB49"/>
+</linearGradient>
+</defs>
+</svg>
+        <div class="mast-line">Monthly Roundup · June 2026</div>
+      </div>
+      <div class="cover-main">
+        <h1 class="cover-title">june roundup<span class="lime-dot">.</span></h1>
+        <p class="cover-sub">Coming together, moving forward.</p>
+      </div>
+    </div>
+    <div class="foot">
+      <div class="wordmark">tbscg<span class="sq"></span></div>
+    </div>
+  </section>
+
+  <!-- 02 CLAIM (ink) -->
+  <section class="slide ink glow">
+    <div class="frame">
+      <div class="eyebrow">The month</div>
+      <div class="push"></div>
+      <h1 class="headline">Two things move<br>us <em>forward</em>.</h1>
+      <p class="subline mt-eyebrow">People, <span class="lime-mark">and direction</span>.</p>
+      <div class="push"></div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 03 EXECUTIVE HIGHLIGHTS -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">Executive highlights</div>
+      <div class="list">
+        <div class="item"><div class="idx">01</div><div>
+          <h3>Triple Days, <em>in person</em></h3>
+          <p>After lots of remote work, we get teams into one room across the UK, Spain and Poland. A chance to reconnect, share what we are learning, and build our culture face to face.</p>
+        </div></div>
+        <div class="item"><div class="idx">02</div><div>
+          <h3>Aligning on the <em>AI-first</em> transition</h3>
+          <p>Leadership has agreed our 90-day priorities, and is leaving the room with clear owners and clear actions.</p>
+        </div></div>
+        <div class="item"><div class="idx">03</div><div>
+          <h3>Two <em>Hero</em> products for the next 90 days</h3>
+          <p>Our latest QBR set the focus: an AI-enhanced migration offering and a new Envisioning discovery-consulting offering, both targeted for delivery within 90 days.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 04 TRIPLE DAYS DATES (leaders) -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">What's coming up · Triple Days</div>
+      <div class="leaders">
+        <div class="lrow"><span class="k"><em>UK</em></span><span class="dots"></span><span class="v">3–4 June</span></div>
+        <div class="lrow"><span class="k"><em>Poland</em></span><span class="dots"></span><span class="v">10–12 June</span></div>
+        <div class="lrow"><span class="k"><em>Spain</em></span><span class="dots"></span><span class="v">17–19 June</span></div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 05 CLOUDINARY (dominant figure) -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">Growth &amp; sales · New partner status</div>
+      <div class="figure-row">
+        <div class="bignum"><em>1</em><sup>st</sup></div>
+        <div class="said">
+          <div class="big">and only <em>Cloudinary</em> Partner globally able to deliver services on the vendor's behalf.</div>
+          <div class="det">Formal onboarding starts next week.</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 06 PARTNER MOMENTUM (band) -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">Growth &amp; sales · Momentum</div>
+      <div class="band">
+        <div class="col">
+          <div class="lab">Magnolia Next</div>
+          <div class="val"><em>Diamond</em> Sponsor</div>
+          <div class="dsc">International customer and partner event at the end of June. A keynote slot and a round-table alongside Magnolia leadership and customers.</div>
+        </div>
+        <div class="col">
+          <div class="lab">AWS</div>
+          <div class="val">Marketplace &amp; BOX</div>
+          <div class="dsc">New Marketplace listings showcase our Agentic CMS and DAM migration offerings. The AWS-funded BOX program has us building an Insurance-vertical solution with Magnolia.</div>
+        </div>
+        <div class="col">
+          <div class="lab">Pipeline</div>
+          <div class="val">Healthy &amp; growing</div>
+          <div class="dsc">Active migration and DXP opportunities across financial services and Travel &amp; Leisure, plus growth in BAE Systems, Bobcat and Nikon Inc.</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 07 DELIVERY (split) -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">Delivery &amp; project milestones</div>
+      <div class="split">
+        <div class="half">
+          <div class="lab">In progress</div>
+          <h3>AWS certification <em>alignment</em></h3>
+          <p>Teams are working to ensure registration accuracy and to identify the right people for future certifications. A real group effort, and a big thank-you to everyone for the involvement and support.</p>
+        </div>
+        <div class="half">
+          <div class="lab">Under review</div>
+          <h3>New <em>tooling</em></h3>
+          <p>An internal review of our CRM, finance and project tools is underway, aiming for slicker, tidier systems with easier reporting, interactions and management. Watch this space.</p>
+        </div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 08 WHAT'S NEXT (split) -->
+  <section class="slide">
+    <div class="frame">
+      <div class="eyebrow">What's coming up</div>
+      <div class="split">
+        <div class="half">
+          <div class="lab">During Triple Days</div>
+          <h3>A short <em>workshop</em></h3>
+          <p>A practical, low-pressure 2–3 hour project-style session. A way to see how we collaborate, reason and apply AI judgement together. Come curious: it is about learning and growing, not competing.</p>
+        </div>
+        <div class="half">
+          <div class="lab">Over the coming weeks</div>
+          <h3>Delivering our <em>Hero</em> products</h3>
+          <p>Expect momentum on both offerings as we move our AI-first delivery approach forward.</p>
+        </div>
+      </div>
+    </div>
+    <div class="foot"></div>
+  </section>
+
+  <!-- 09 CLOSE (ink) -->
+  <section class="slide ink">
+    <div class="frame">
+      <div class="eyebrow">Why this matters</div>
+      <div class="close-main">
+        <h1 class="headline" style="font-size:clamp(40px,5.6vw,92px);max-width:18ch;">People<span style="color:var(--lime)">,</span> and <em>direction</em>.</h1>
+        <p class="close-note">This month brings the two things that move us forward together. A huge thank-you to everyone making Triple Days happen, and to all of you joining in. More details will be shared onsite, so don't be afraid to ask.</p>
+      </div>
+    </div>
+    <div class="foot">
+      <div class="wordmark">tbscg<span class="sq"></span></div>
+      <div class="counter" style="min-width:auto;">The Leadership Team</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Persistent nav cluster -->
+<div class="nav-fixed" id="navFixed">
+  <button class="nav-btn prev" aria-label="Previous"><span>‹</span></button>
+  <button class="counter" id="counter" aria-haspopup="true" aria-label="Jump to slide">01 / 09</button>
+  <button class="nav-btn next" aria-label="Next"><span>›</span></button>
+</div>
+
+<!-- Slide picker popup -->
+<div class="picker" id="picker" hidden>
+  <div class="picker-panel" id="pickerPanel">
+    <div class="picker-eyebrow">Jump to</div>
+    <div class="picker-list" id="pickerList"></div>
+  </div>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const progress=document.getElementById('progress');
+  const navFixed=document.getElementById('navFixed');
+  const counter=document.getElementById('counter');
+  const prevBtn=navFixed.querySelector('.nav-btn.prev');
+  const nextBtn=navFixed.querySelector('.nav-btn.next');
+  const total=slides.length;
+  const pad=n=>String(n).padStart(2,'0');
+  const titles=['June Roundup','Two things move us forward','Executive highlights','Triple Days dates','New partner: Cloudinary','Partner momentum','Delivery & milestones','What’s coming up','Why this matters'];
+  let i=0;
+  function render(){
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    progress.style.width=((i)/(total-1)*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(total);
+    prevBtn.disabled=(i===0); nextBtn.disabled=(i===total-1);
+    navFixed.classList.toggle('on-ink',slides[i].classList.contains('ink'));
+    if(!picker.hidden) markCurrent();
+  }
+  function go(n){i=Math.max(0,Math.min(total-1,n)); render();}
+  prevBtn.addEventListener('click',()=>go(i-1));
+  nextBtn.addEventListener('click',()=>go(i+1));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){closePicker();return;}
+    if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault(); go(i+1);}
+    if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault(); go(i-1);}
+    if(e.key==='Home')go(0); if(e.key==='End')go(total-1);
+  });
+  document.getElementById('deck').addEventListener('click',e=>{
+    go(e.clientX>window.innerWidth/2?i+1:i-1);
+  });
+
+  /* ---- Slide picker ---- */
+  const picker=document.getElementById('picker');
+  const pickerList=document.getElementById('pickerList');
+  titles.forEach((t,k)=>{
+    const b=document.createElement('button');
+    b.className='picker-item';
+    b.innerHTML='<span class="pi-idx">'+pad(k+1)+'</span><span class="pi-title">'+t+'</span>';
+    b.addEventListener('click',()=>{go(k); closePicker();});
+    pickerList.appendChild(b);
+  });
+  const items=[...pickerList.children];
+  function markCurrent(){items.forEach((el,k)=>el.classList.toggle('current',k===i));}
+  function openPicker(){markCurrent(); picker.hidden=false;}
+  function closePicker(){picker.hidden=true;}
+  counter.addEventListener('click',e=>{e.stopPropagation(); picker.hidden?openPicker():closePicker();});
+  picker.addEventListener('click',e=>{if(e.target===picker)closePicker();});
+
+  render();
+</script>
+</body>
+</html>
