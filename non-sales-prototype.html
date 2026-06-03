@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Non-sales slides · prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@200;300;400;500;700;800;900&family=Karla:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper-canvas:#fafaf7; --paper-page:#f3f3ee; --paper-panel:#ebebe6; --paper-deep:#e2e2dc;
+    --ink:#0a0a0a; --ink-body:#1f1f1f; --ink-soft:#4a4a4a; --ink-mute:#7a7a7a; --ink-quiet:#a8a8a8;
+    --line:#d4d4cf; --line-soft:#e0e0db; --lime:#bcfb49;
+    --ease:cubic-bezier(0.22,0.61,0.36,1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  ::selection{background:var(--lime); color:var(--ink);}
+  html,body{height:100%;}
+  body{background:#111; color:var(--ink-body); font-family:'Karla',sans-serif; font-weight:300; -webkit-font-smoothing:antialiased; overflow:hidden;}
+
+  .slide{position:fixed; inset:0; display:none; flex-direction:column; background:var(--paper-canvas);}
+  .slide.active{display:flex;}
+  .frame{flex:1; display:flex; flex-direction:column; padding:clamp(46px,5vw,86px) clamp(56px,7vw,116px) clamp(92px,11vh,120px); position:relative; min-height:0;}
+
+  .eyebrow{display:flex; align-items:center; gap:18px; flex:none; font-family:'Karla',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.22em; color:var(--ink-mute);}
+  .eyebrow::before{content:''; width:32px; height:2px; background:var(--lime); display:inline-block; flex:none;}
+
+  .foot{position:absolute; left:clamp(56px,7vw,116px); right:clamp(56px,7vw,116px); bottom:clamp(32px,4vh,52px); display:flex; justify-content:space-between; align-items:center;}
+  .foot .wm{font-family:'Epilogue',sans-serif; font-weight:800; font-size:14px; text-transform:lowercase; color:var(--ink); display:flex; align-items:center; gap:5px;}
+  .foot .wm .sq{width:6px; height:6px; background:var(--lime); display:inline-block;}
+  .nav{display:flex; align-items:center; gap:14px; color:var(--ink-soft);}
+  .nav-btn{background:none; border:1px solid currentColor; color:var(--ink-soft); width:32px; height:32px; font-family:'Epilogue',sans-serif; font-size:16px; opacity:0.5; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .counter{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink-mute); min-width:88px; text-align:center;}
+
+  .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet);}
+
+  /* hatch motif = work-in-progress / in-build */
+  .hatch{background-image:repeating-linear-gradient(-45deg, rgba(10,10,16,0.05) 0, rgba(10,10,16,0.05) 1px, transparent 1px, transparent 13px);}
+
+  /* ============ TRIPLE DAYS · lime set-piece ============ */
+  .td-grid{flex:1; display:grid; grid-template-columns:0.92fr 1.08fr; gap:clamp(40px,5vw,84px); align-items:center; min-height:0;}
+  .td-h{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(40px,5.4vw,86px); letter-spacing:-0.04em; line-height:0.96; color:var(--ink);}
+  .td-h em{font-style:normal; font-weight:800;}
+  .td-dates{margin-top:clamp(28px,4vh,52px); display:flex; flex-direction:column; border-top:1px solid var(--line);}
+  .td-dates .d{display:flex; align-items:baseline; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--line);}
+  .td-dates .city{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(20px,2vw,28px); letter-spacing:-0.02em; color:var(--ink);}
+  .td-dates .when{font-family:'Karla',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-mute);}
+
+  .lime-panel{background:var(--lime); color:var(--ink); padding:clamp(34px,3.4vw,56px); position:relative; align-self:stretch; display:flex; flex-direction:column; justify-content:center; margin:clamp(8px,2vh,24px) 0;}
+  .lime-panel .lp-label{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink); opacity:0.62; margin-bottom:clamp(18px,2.4vh,30px);}
+  .lime-panel .lp-quote{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(38px,4.6vw,76px); line-height:0.98; letter-spacing:-0.04em; color:var(--ink);}
+  .lime-panel .lp-quote em{font-style:normal; font-weight:800;}
+  .lime-panel .lp-note{margin-top:clamp(20px,2.6vh,32px); max-width:42ch; font-size:14.5px; line-height:1.55; color:#2a3308;}
+
+  /* ============ ENGINEERING · type-hero + hatch ============ */
+  .eng-grid{flex:1; display:grid; grid-template-columns:1.05fr 0.95fr; gap:clamp(40px,5vw,90px); align-items:center; min-height:0;}
+  .hero-num{position:relative; padding:clamp(20px,3vh,44px) 0;}
+  .hero-num .hatch-band{position:absolute; left:-12px; right:-12px; top:50%; transform:translateY(-50%); height:clamp(120px,20vh,200px); z-index:0;
+    background-image:repeating-linear-gradient(-45deg, rgba(10,10,16,0.05) 0, rgba(10,10,16,0.05) 1px, transparent 1px, transparent 13px);}
+  .hero-num .hn{position:relative; z-index:1; font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(96px,15vw,210px); line-height:0.82; letter-spacing:-0.05em; color:var(--ink);}
+  .hero-num .hn em{font-style:normal; font-weight:800;}
+  .hero-num .hn-sub{position:relative; z-index:1; margin-top:14px; font-family:'Karla',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-mute);}
+  .eng-list{display:flex; flex-direction:column; border-top:1px solid var(--line);}
+  .eng-list .el{padding:clamp(14px,2vh,22px) 0; border-bottom:1px solid var(--line);}
+  .eng-list .el .lab{margin-bottom:7px;}
+  .eng-list .el h4{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(19px,1.9vw,26px); letter-spacing:-0.02em; color:var(--ink); line-height:1.05; margin-bottom:4px;}
+  .eng-list .el h4 em{font-style:normal; font-weight:800;}
+  .eng-list .el p{font-size:13.5px; line-height:1.5; color:var(--ink-soft); max-width:44ch;}
+
+  /* ============ DELIVERY · hatch + real-artefact badges ============ */
+  .del-grid{flex:1; display:grid; grid-template-columns:1.15fr 0.85fr; gap:clamp(40px,5vw,84px); align-items:stretch; min-height:0; margin-top:clamp(20px,3vh,40px);}
+  .del-certs{display:flex; flex-direction:column;}
+  .del-certs .lab{padding-bottom:14px; border-bottom:1px solid var(--line); margin-bottom:clamp(20px,3vh,32px);}
+  .badges{display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(14px,1.4vw,20px);}
+  .badge{position:relative; aspect-ratio:1/1; background:var(--paper-panel); border:1px solid var(--line-soft); display:flex; align-items:center; justify-content:center; padding:10px;}
+  .badge img{max-width:100%; max-height:100%; object-fit:contain;}
+  .badge .ghost{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(13px,1.1vw,16px); color:rgba(31,31,31,0.16); text-align:center; letter-spacing:-0.01em;}
+  .del-certs p{margin-top:clamp(20px,3vh,30px); font-size:14px; line-height:1.55; color:var(--ink-soft); max-width:52ch;}
+  .del-tooling{position:relative; background:var(--paper-page); border:1px solid var(--line); padding:clamp(26px,2.6vw,40px); display:flex; flex-direction:column; justify-content:center; overflow:hidden;}
+  .del-tooling::after{content:'UNDER REVIEW'; position:absolute; top:16px; right:18px; font-family:'Karla',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; color:var(--ink-quiet);}
+  .del-tooling .lab{margin-bottom:14px;}
+  .del-tooling h3{font-family:'Epilogue',sans-serif; font-weight:200; font-size:clamp(26px,2.8vw,40px); letter-spacing:-0.03em; line-height:1.05; color:var(--ink); margin-bottom:14px;}
+  .del-tooling h3 b{font-weight:800;}
+  .del-tooling p{font-size:13.5px; line-height:1.55; color:var(--ink-soft); position:relative; z-index:1;}
+
+  .pill{position:fixed; top:18px; left:50%; transform:translateX(-50%); font-family:'Karla',sans-serif; font-weight:700; font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); z-index:40;}
+</style>
+</head>
+<body>
+<div class="pill">Prototype · non-sales slides</div>
+
+<!-- TRIPLE DAYS -->
+<section class="slide active">
+  <div class="frame">
+    <div class="eyebrow">The month · Triple Days</div>
+    <div class="td-grid">
+      <div class="td-left">
+        <h2 class="td-h">Teams in<br>one <em>room</em>.</h2>
+        <div class="td-dates">
+          <div class="d"><span class="city">UK</span><span class="when">3–4 Jun</span></div>
+          <div class="d"><span class="city">Poland</span><span class="when">10–12 Jun</span></div>
+          <div class="d"><span class="city">Spain</span><span class="when">17–19 Jun</span></div>
+        </div>
+      </div>
+      <div class="lime-panel">
+        <div class="lp-label">The Triple Days workshop</div>
+        <div class="lp-quote">Come <em>curious</em>.<br>Not competing.</div>
+        <div class="lp-note">A short 2–3 hour project session. A low-pressure way to see how we collaborate, reason and apply AI judgement together.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter" id="c">Triple Days</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<!-- ENGINEERING -->
+<section class="slide">
+  <div class="frame">
+    <div class="eyebrow">Engineering · AI-first</div>
+    <div class="eng-grid">
+      <div class="hero-num">
+        <span class="hatch-band"></span>
+        <div class="hn"><em>90</em> days</div>
+        <div class="hn-sub">to first Hero-product delivery</div>
+      </div>
+      <div class="eng-list">
+        <div class="el"><div class="lab">The transition</div><h4>An <em>AI-first</em> practice</h4><p>90-day priorities agreed. Clear owners, clear actions.</p></div>
+        <div class="el"><div class="lab">Hero product · 01</div><h4>AI-enhanced <em>migration</em></h4><p>Our agentic migration offering, productised.</p></div>
+        <div class="el"><div class="lab">Hero product · 02</div><h4><em>Envisioning</em></h4><p>A new discovery-consulting offering.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">Engineering</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<!-- DELIVERY -->
+<section class="slide">
+  <div class="frame">
+    <div class="eyebrow">Delivery · This month</div>
+    <div class="del-grid">
+      <div class="del-certs">
+        <div class="lab">AWS certification alignment</div>
+        <div class="badges">
+          <div class="badge"><span class="ghost">AWS<br>badge</span></div>
+          <div class="badge"><span class="ghost">AWS<br>badge</span></div>
+          <div class="badge"><span class="ghost">AWS<br>badge</span></div>
+          <div class="badge"><span class="ghost">AWS<br>badge</span></div>
+        </div>
+        <p>Ensuring registration accuracy and identifying the right people for future certifications. A real group effort, and a big thank-you to everyone for the support.</p>
+      </div>
+      <div class="del-tooling hatch">
+        <div class="lab">Tooling</div>
+        <h3>CRM · Finance · <b>Project</b></h3>
+        <p>An internal review underway, aiming for slicker, tidier systems with easier reporting and management. Watch this space.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="wm">tbscg<span class="sq"></span></div><div class="nav"><button class="nav-btn" onclick="go(-1)"><span>‹</span></button><div class="counter">Delivery</div><button class="nav-btn" onclick="go(1)"><span>›</span></button></div></div>
+</section>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')]; let i=0;
+  function render(){slides.forEach((s,k)=>s.classList.toggle('active',k===i));}
+  function go(d){i=(i+d+slides.length)%slides.length; render();}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1);});
+  document.body.addEventListener('click',e=>{if(e.target.closest('.nav-btn'))return; go(e.clientX>innerWidth/2?1:-1);});
+</script>
+</body>
+</html>
