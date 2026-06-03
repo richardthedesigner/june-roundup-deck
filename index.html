@@ -225,10 +225,10 @@
       radial-gradient(130% 90% at 76% 14%, rgba(255,255,255,0.6), transparent 58%),
       linear-gradient(158deg,#ecebe6 0%,#e5e4de 54%,#deded6 100%);
     border:1px solid var(--line-soft); overflow:hidden;
-    display:flex; align-items:center; justify-content:center; padding:clamp(16px,1.8vw,30px);
+    display:flex; align-items:center; justify-content:center; padding:0;
   }
-  .gallery .well img{ /* fill instruction: contain, never crop or distort */
-    max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;
+  .gallery .well img{
+    width:100%; height:100%; object-fit:cover; display:block;
   }
   .gallery .well .ghost{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
