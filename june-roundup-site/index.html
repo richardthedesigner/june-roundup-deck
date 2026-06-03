@@ -270,6 +270,31 @@
   .delivery{flex:1; display:grid; grid-template-columns:1.05fr 1fr; align-items:stretch; min-height:0;}
   .delivery .pieces{display:flex; flex-direction:column; gap:clamp(38px,5.5vh,62px); align-self:center; padding:clamp(48px,5.5vw,92px) clamp(40px,5vw,72px) clamp(96px,12vh,128px) clamp(56px,7vw,116px);}
   .delivery .pieces .eyebrow{margin-bottom:clamp(8px,1.4vh,18px);}
+
+  /* ---- Finance note (a note to follow) ---- */
+  .slide.fin-note .field{
+    position:relative; align-self:center; margin:auto 0;
+    width:min(1060px,100%); height:min(560px,60vh);
+    border:1px solid var(--line); overflow:hidden;
+    background-image:repeating-linear-gradient(45deg, rgba(10,10,16,0.12) 0, rgba(10,10,16,0.12) 1px, transparent 1px, transparent 14px);
+    background-color:var(--paper-canvas);
+  }
+  .slide.fin-note .field .note-card{
+    position:absolute; right:clamp(34px,4%,64px); bottom:clamp(34px,7%,72px);
+    width:clamp(240px,30%,320px);
+    background:var(--paper-canvas); box-shadow:0 26px 50px -26px rgba(10,10,16,0.28);
+    padding:clamp(26px,2.4vw,38px) clamp(26px,2.4vw,38px) clamp(28px,2.6vw,40px);
+    display:flex; flex-direction:column; min-height:clamp(220px,40%,300px); justify-content:flex-end;
+  }
+  .slide.fin-note .field .note-card .lbl{
+    font-family:'Karla',sans-serif; font-weight:700; font-size:10px;
+    letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); margin-bottom:auto;
+  }
+  .slide.fin-note .field .note-card .h{
+    font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+    font-size:clamp(30px,2.9vw,46px); line-height:1.0; letter-spacing:-0.01em; color:var(--ink);
+  }
+  .slide.fin-note .field .note-card .h b{font-family:'Epilogue',sans-serif; font-style:normal; font-weight:800; letter-spacing:-0.03em;}
   .delivery .piece{display:flex; flex-direction:column;}
   .delivery .piece .lab{font-family:'Karla',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-quiet); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line);}
   .delivery .piece h3{font-family:'Epilogue',sans-serif; font-weight:300; font-size:clamp(22px,2.4vw,34px); letter-spacing:-0.025em; color:var(--ink); line-height:1.05; margin-bottom:8px;}
@@ -593,12 +618,15 @@
   </section>
 
   <!-- 12 FINANCE (CFO note) -->
-  <section class="slide">
+  <section class="slide fin-note">
     <div class="frame">
-      <div class="eyebrow">Finance</div>
-      <div class="push"></div>
-      <h1 class="headline">A note from<br>our <em>CFO</em>.</h1>
-      <div class="push"></div>
+      <div class="eyebrow">Finance · A note to follow</div>
+      <div class="field">
+        <div class="note-card">
+          <div class="lbl">From the desk of Sue</div>
+          <div class="h">A note,<br>from our <b>cfo.</b></div>
+        </div>
+      </div>
     </div>
     <div class="foot"></div>
   </section>
